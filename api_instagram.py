@@ -20,24 +20,24 @@ browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
 instagram_bases = ['lucasmontano','flutterando','dieegosf','cafeparaprogramar','felipealvesdef','filipedeschamps','geek2zone','_codando_','devmedia.com.br','sujeitoprogramador']
-username = "xxx"
-password = "xxx"
+username = "your account"
+password = "your_password"
 
 class main:
     def __init__(self): 
         print('Executing...')
         logIn()
         while(True):
-            chooser = 0                    
+            chooser = randint(0, 2)                    
             if(chooser == 0):                                            
-                like_user_photo()
-                #i = randint(0, len(instagram_bases))                                                                                    
-                #browser.refresh()   
-                #sleep(randint(2, 5))
-                #GetFollowersfrom(instagram_bases[i-1])   
-                #sleep(randint(2, 5))
-                #GetFollowersfrom(instagram_bases[i-1])
-                #UnfllowPeople()
+                #like_user_photo()
+                i = randint(0, len(instagram_bases))                                                                                    
+                browser.refresh()   
+                sleep(randint(2, 5))
+                GetFollowersfrom(instagram_bases[i-1])   
+                sleep(randint(2, 5))
+                GetFollowersfrom(instagram_bases[i-1])
+                UnfllowPeople()
             elif (chooser == 1):                
                 UnfllowPeople()                
                 browser.refresh()
