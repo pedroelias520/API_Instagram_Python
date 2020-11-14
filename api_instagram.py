@@ -10,6 +10,7 @@ from selenium import webdriver
 from time import sleep
 from datetime import datetime
 from bs4 import BeautifulSoup as bs
+import requests
 
 
 
@@ -20,39 +21,51 @@ browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
 instagram_bases = ['lucasmontano','flutterando','dieegosf','cafeparaprogramar','felipealvesdef','filipedeschamps','geek2zone','_codando_','devmedia.com.br','sujeitoprogramador']
-username = "your account"
-password = "your_password"
+username = "xxx"
+password = "xxx"
+URL = "http://www.instagram.com/{}/"
+
 
 class main:
     def __init__(self): 
         print('Executing...')
         logIn()
         while(True):
-            chooser = randint(0, 2)                    
-            if(chooser == 0):                                            
+            data = scrape_data(username[1:])            
+            chooser = 0            
+            
+                     
+            if(chooser == 0):       
+                print("Seguir 2x %i" % (chooser))                                     
                 #like_user_photo()
                 i = randint(0, len(instagram_bases))                                                                                    
                 browser.refresh()   
+                GetFollowersfrom(instagram_bases[i-1])   
                 sleep(randint(2, 5))
                 GetFollowersfrom(instagram_bases[i-1])   
                 sleep(randint(2, 5))
-                GetFollowersfrom(instagram_bases[i-1])
-                UnfllowPeople()
-            elif (chooser == 1):                
+                GetFollowersfrom(instagram_bases[i-1])                
+            elif (chooser == 1 or chooser == 2):  
+                print("Deseguir e Seguir 2x: %i" %(chooser))                                     
+                i = randint(0, len(instagram_bases))   
                 UnfllowPeople()                
                 browser.refresh()
                 sleep(randint(2, 5))
-                FollowPeople()
+                GetFollowersfrom(instagram_bases[i-1])
                 browser.refresh()
                 sleep(randint(2, 5))
                 FollowPeople()                
             else:
+                print("Deseguir 2x: %i" % (chooser))                                     
+                UnfllowPeople()
+                browser.refresh
+                sleep(randint(2, 5))
                 UnfllowPeople()
                 browser.refresh
                 sleep(randint(2, 5))
                 UnfllowPeople()                
             browser.get("https://www.instagram.com/")                  
-            time = randint(1800, 3600)
+            time = randint(600, 1900)
             now = datetime.now()
             current_time =  now.strftime("%H:%M:%S")            
             print("Hora de término de execução:" + current_time)
@@ -83,7 +96,26 @@ def logIn():
     except:
         print('Erro no login')
     sleep(5)
-   
+def parse_data(s):    
+    data= {}
+    s = s.split("-")[0]
+    s = s.split(" ")
+    
+    data['Followers'] = s[0]
+    data['Following'] = s[1]
+    data['Posts'] = s[2]
+    
+    return data
+        
+def scrape_data(username):
+    r = requests.get(URL.format(username))
+    
+    s = bs(r.text,"html.parser")
+    
+    meta = s.find("meta",property="og:description")
+    
+    return parse_data(meta.attrs['content'])
+ 
 def UnfllowPeople():
     browser.get("https://www.instagram.com/" + username[1:] )
     browser.implicitly_wait(5)
@@ -113,6 +145,7 @@ def UnfllowPeople():
     
 def search_users():
     browser.get("https://www.instagram.com/explore/people/suggested/")
+    sleep(randint(0, 5))
     
     for user in browser.find_elements_by_css_selector("div.Igw0E.IwRSH.YBx95.vwCYk"):
         users.append(user.find_element_by_css_selector('a').get_attribute('title'))             
@@ -163,7 +196,7 @@ def has_next_picture():
         print("User has no more pictures")
         return False            
             
-            
+           
 def FollowPeople():       
     
     browser.get("https://www.instagram.com/explore/people/suggested/")
@@ -207,8 +240,7 @@ def GetFollowersfrom(person):
     print(number_of_random)
     print('=========================')
     cont_num = 0
-    following_button = browser.find_elements_by_xpath("//button[text()='Seguir']")
-    random.shuffle(following_button)
+    following_button = browser.find_elements_by_xpath("//button[@text='Seguir']")    
     
     sleep(randint(0, 5))    
     for i in following_button:
@@ -219,10 +251,7 @@ def GetFollowersfrom(person):
                 cont_num=cont_num + 1
                 porcentage =  ((cont_num*100) / number_of_random)
                 print("%:.0f por cento concluídos" % (porcentage))
-            except:
-                cont_num=cont_num + 1
-                porcentage =  ((cont_num*100) / number_of_random)
-                print("%.0f por cento concluídos" % (porcentage))
+            except:            
                 print("Erro de captura do botao 'Seguir'")
         else:
             print("Target Acquired")
