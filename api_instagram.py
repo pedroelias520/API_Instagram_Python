@@ -11,6 +11,7 @@ from time import sleep
 from datetime import datetime
 from bs4 import BeautifulSoup as bs
 import requests
+import numpy as np
 
 
 
@@ -20,9 +21,9 @@ import requests
 browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
-instagram_bases = ['lucasmontano','flutterando','dieegosf','cafeparaprogramar','felipealvesdef','filipedeschamps','geek2zone','_codando_','devmedia.com.br','sujeitoprogramador']
-username = "xxx"
-password = "xxx"
+instagram_bases = ['lucasmontano','flutterando','dieegosf','cafeparaprogramar','felipealvesdef','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador']
+username = "???"
+password = "???"
 URL = "http://www.instagram.com/{}/"
 
 
@@ -32,17 +33,19 @@ class main:
         logIn()
         while(True):
             data = scrape_data(username[1:])            
-            chooser = 0            
+            chooser = randint(0, 4)            
             
                      
             if(chooser == 0):       
                 print("Seguir 2x %i" % (chooser))                                     
-                #like_user_photo()
+                like_user_photo()
                 i = randint(0, len(instagram_bases))                                                                                    
                 browser.refresh()   
                 GetFollowersfrom(instagram_bases[i-1])   
+                i = randint(0, len(instagram_bases))        
                 sleep(randint(2, 5))
                 GetFollowersfrom(instagram_bases[i-1])   
+                i = randint(0, len(instagram_bases))        
                 sleep(randint(2, 5))
                 GetFollowersfrom(instagram_bases[i-1])                
             elif (chooser == 1 or chooser == 2):  
@@ -54,13 +57,15 @@ class main:
                 GetFollowersfrom(instagram_bases[i-1])
                 browser.refresh()
                 sleep(randint(2, 5))
-                FollowPeople()                
+                FollowPeople()      
+                like_user_photo()
             else:
                 print("Deseguir 2x: %i" % (chooser))                                     
                 UnfllowPeople()
                 browser.refresh
                 sleep(randint(2, 5))
                 UnfllowPeople()
+                like_user_photo()
                 browser.refresh
                 sleep(randint(2, 5))
                 UnfllowPeople()                
@@ -155,33 +160,60 @@ def search_users():
         print("Successfully searched for: " + users[keyword -1]+"/")
     except :
         print("Search failed")
-        
+def search_users_from_person():
+    i = randint(0, len(instagram_bases))        
+    browser.get("https://www.instagram.com/" + instagram_bases[i-1] )
+    browser.implicitly_wait(5)
+    profile_logo_following = browser.find_element_by_xpath("//a[@href='/"+ instagram_bases[i-1] +"/followers/']").click()        
+    sleep(randint(0, 5))
+    
+    for user in browser.find_elements_by_css_selector("div.Igw0E.IwRSH.YBx95.vwCYk"):
+        users.append(user.find_element_by_css_selector('a').get_attribute('title'))             
+    keyword = (randint(0, len(users)))
+    try:
+        browser.get("https://www.instagram.com/"+users[keyword -1]+"/")        
+        print("Successfully searched for: " + users[keyword -1]+"/")
+    except :
+        print("Search failed")
+                
 def like_user_photo():
-    search_users()
-    #In user profile
-    rows = browser.find_elements_by_css_selector("div.Nnq7C.weEfm")   
-    rows[0].find_element_by_css_selector("div.v1Nh3.kIKUG._bz0w").click()
+    #In user profile    
+    type_search = randint(0, 1)
+    if(type_search == 0):
+        search_users_from_person()             
+    else:
+        search_users()
+        
+    user_photo_founded = True    
+    while(user_photo_founded):
+              
+        rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))            
+        if(rows.size == 0):
+            print("USUÁRIO SEM FOTOS, PROCURANDO UM NOVO...")
+            search_users()  
+            rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))                 
+        else:
+            position = randint(0, len(rows))
+            rows[position-1].find_element_by_css_selector("div.v1Nh3.kIKUG._bz0w").click() 
+            user_photo_founded = False
     
     has_picture = True
     
     while has_picture:
-       like()
+       like()       
+       sleep(randint(0,3))
        has_picture = has_next_picture()
     try:
         browser.find_element_by_xpath("//button[@class=\"ckWGn\"]").click()
-        print("Liked all pictures of " + browser.current_url)
+        print("Fots curtidas do link: " + browser.current_url)
     except:
-        print("Couldn't close the picture, navigating back to Instagram's main page.") 
+        print("Não foi possível abrir a imagem, voltando para a página inicial") 
         browser.get("https://www.instagram.com/")
     
-def like():        
-    liked = browser.find_element_by_css_selector("button.wpO6b")
-    print(liked)
-    # If there are like buttons
-    try:    
-        print("Picture has already been liked")    
-        liked.click()
-        sleep(0.001)                
+def like():                
+    try:              
+        browser.find_element_by_class_name('fr66n').click()
+        sleep(randint(0, 3))                
         print("Sucessfully clicked the photo")
     except:
         print("Error to like")        
@@ -190,7 +222,7 @@ def like():
 def has_next_picture():    
     next_button = "//a[text()=\"Próximo\"]"
     try:
-        browser.find_element_by_xpath(next_button).click()
+        browser.find_element_by_xpath(next_button).click()        
         return True
     except :
         print("User has no more pictures")
@@ -214,19 +246,22 @@ def FollowPeople():
     person = browser.find_elements_by_xpath("//button[text()='Seguir']")  
     random.shuffle(person)  
         
-    #Follow all person's    
-    for i in person:
-        sleep(randint(1, 5))
-        if (cont<=number_of_people):                                 
-            print(cont)
-            i.click()                
-            if(browser.find_elements_by_xpath("//button[text()='Deixar de Seguir']")):
-                confirm_button = browser.find_element_by_xpath("//button[text()='Deixar de seguir']")
-                confirm_button.click()
-            cont = cont + 1
-        else:                                
-            print('Target acquired')
-            break
+    #Follow all person's  
+    try:
+        for i in person:
+            sleep(randint(1, 5))
+            if (cont<=number_of_people):                                 
+                print(cont)
+                i.click()                
+                if(browser.find_elements_by_xpath("//button[text()='Deixar de Seguir']")):
+                    confirm_button = browser.find_element_by_xpath("//button[text()='Deixar de seguir']")
+                    confirm_button.click()
+                cont = cont + 1
+            else:                                
+                print('Target acquired')
+                break
+    except:
+        print("ERROR TO FOLLOW, CONTINUING THE FLOW...")
         
 
          
@@ -235,12 +270,15 @@ def GetFollowersfrom(person):
     browser.implicitly_wait(5)
     profile_logo_following = browser.find_element_by_xpath("//a[@href='/"+ person +"/followers/']")
     profile_logo_following.click()
-    print('Number of repititons')
+    print('Numero de pessoas para seguir')
     number_of_random = randint(10, 20)    
     print(number_of_random)
     print('=========================')
     cont_num = 0
-    following_button = browser.find_elements_by_xpath("//button[@text='Seguir']")    
+    following_button = browser.find_elements_by_class_name("sqdOP.L3NKy.y3zKF") 
+    random.shuffle(following_button)
+    
+    print(following_button)
     
     sleep(randint(0, 5))    
     for i in following_button:
