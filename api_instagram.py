@@ -22,8 +22,8 @@ browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
 instagram_bases = ['lucasmontano','flutterando','dieegosf','cafeparaprogramar','felipealvesdef','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador']
-username = "???"
-password = "???"
+username = ""
+password = ""
 URL = "http://www.instagram.com/{}/"
 
 
@@ -33,7 +33,7 @@ class main:
         logIn()
         while(True):
             data = scrape_data(username[1:])            
-            chooser = randint(0, 4)            
+            chooser = randint(0, 3)            
             
                      
             if(chooser == 0):       
@@ -58,6 +58,8 @@ class main:
                 browser.refresh()
                 sleep(randint(2, 5))
                 FollowPeople()      
+                sleep(randint(2, 5))
+                GetFollowersfrom(instagram_bases[i-1])
                 like_user_photo()
             else:
                 print("Deseguir 2x: %i" % (chooser))                                     
@@ -67,10 +69,9 @@ class main:
                 UnfllowPeople()
                 like_user_photo()
                 browser.refresh
-                sleep(randint(2, 5))
-                UnfllowPeople()                
+                sleep(randint(2, 5))                         
             browser.get("https://www.instagram.com/")                  
-            time = randint(600, 1900)
+            time = randint(800, 3600)
             now = datetime.now()
             current_time =  now.strftime("%H:%M:%S")            
             print("Hora de término de execução:" + current_time)
@@ -178,37 +179,41 @@ def search_users_from_person():
                 
 def like_user_photo():
     #In user profile    
-    type_search = randint(0, 1)
-    if(type_search == 0):
-        search_users_from_person()             
-    else:
-        search_users()
-        
-    user_photo_founded = True    
-    while(user_photo_founded):
-              
-        rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))            
-        if(rows.size == 0):
-            print("USUÁRIO SEM FOTOS, PROCURANDO UM NOVO...")
-            search_users()  
-            rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))                 
+    count =  randint(10, 30)
+    liked = 0
+    while(liked<=count):
+        type_search = randint(0, 1)
+        if(type_search == 0):
+            search_users_from_person()             
         else:
-            position = randint(0, len(rows))
-            rows[position-1].find_element_by_css_selector("div.v1Nh3.kIKUG._bz0w").click() 
-            user_photo_founded = False
-    
-    has_picture = True
-    
-    while has_picture:
-       like()       
-       sleep(randint(0,3))
-       has_picture = has_next_picture()
-    try:
-        browser.find_element_by_xpath("//button[@class=\"ckWGn\"]").click()
-        print("Fots curtidas do link: " + browser.current_url)
-    except:
-        print("Não foi possível abrir a imagem, voltando para a página inicial") 
-        browser.get("https://www.instagram.com/")
+            search_users()
+            
+        user_photo_founded = True    
+        while(user_photo_founded):
+                  
+            rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))            
+            if(rows.size == 0):
+                print("USUÁRIO SEM FOTOS, PROCURANDO UM NOVO...")
+                search_users()  
+                rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))                 
+            else:
+                position = randint(0, len(rows))
+                rows[position-1].find_element_by_css_selector("div.v1Nh3.kIKUG._bz0w").click() 
+                user_photo_founded = False
+        
+        has_picture = True
+        
+        while has_picture:
+           like()       
+           liked = liked + 1
+           sleep(randint(0,3))
+           has_picture = has_next_picture()
+        try:
+            browser.find_element_by_xpath("//button[@class=\"ckWGn\"]").click()
+            print("Fots curtidas do link: " + browser.current_url)            
+        except:
+            print("Não foi possível abrir a imagem, voltando para a página inicial") 
+            browser.get("https://www.instagram.com/")
     
 def like():                
     try:              
@@ -278,7 +283,6 @@ def GetFollowersfrom(person):
     following_button = browser.find_elements_by_class_name("sqdOP.L3NKy.y3zKF") 
     random.shuffle(following_button)
     
-    print(following_button)
     
     sleep(randint(0, 5))    
     for i in following_button:
