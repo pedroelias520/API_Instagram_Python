@@ -21,23 +21,26 @@ import numpy as np
 browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
-instagram_bases = ['lucasmontano','flutterando','dieegosf','cafeparaprogramar','felipealvesdef','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador']
+instagram_bases = ['brito_michelli','anabneri','erickwendel_','marcoshenrique.dev','filipealvesdef','lucasmontano','flutterando','dieegosf','cafeparaprogramar','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador']
 username = ""
 password = ""
 URL = "http://www.instagram.com/{}/"
 
 
 class main:
-    def __init__(self): 
-        print('Executing...')
+    def __init__(self):         
         logIn()
         while(True):
             data = scrape_data(username[1:])            
-            chooser = randint(0, 3)            
-            
+            chooser = randint(0, 4)            
+            data = int(data['Following'])
+            if(data <= 50):
+                print('Numero de seguidores baixo, seguindo outros...')
+                chooser = 0
+           
                      
             if(chooser == 0):       
-                print("Seguir 2x %i" % (chooser))                                     
+                print("Seguir 2x , indice : %i" % (chooser))                                     
                 like_user_photo()
                 i = randint(0, len(instagram_bases))                                                                                    
                 browser.refresh()   
@@ -47,28 +50,37 @@ class main:
                 GetFollowersfrom(instagram_bases[i-1])   
                 i = randint(0, len(instagram_bases))        
                 sleep(randint(2, 5))
-                GetFollowersfrom(instagram_bases[i-1])                
+                GetFollowersfrom(instagram_bases[i-1])     
+                sleep(randint(2, 5))                
             elif (chooser == 1 or chooser == 2):  
-                print("Deseguir e Seguir 2x: %i" %(chooser))                                     
+                print("Deseguir 1x e Seguir 2x, indice : %i" %(chooser))                                     
                 i = randint(0, len(instagram_bases))   
                 UnfllowPeople()                
                 browser.refresh()
                 sleep(randint(2, 5))
+                UnfllowPeople()                
+                browser.refresh()
+                sleep(randint(2, 5))
+                i = randint(0, len(instagram_bases)) 
                 GetFollowersfrom(instagram_bases[i-1])
                 browser.refresh()
                 sleep(randint(2, 5))
-                FollowPeople()      
+                i = randint(0, len(instagram_bases)) 
+                GetFollowersfrom(instagram_bases[i-1])      
                 sleep(randint(2, 5))
+                i = randint(0, len(instagram_bases)) 
                 GetFollowersfrom(instagram_bases[i-1])
                 like_user_photo()
             else:
-                print("Deseguir 2x: %i" % (chooser))                                     
+                print("Deseguir 3x, indece: %i" % (chooser))                                                    
+                UnfllowPeople()
+                like_user_photo()
+                browser.refresh                
+                sleep(randint(2, 5))
                 UnfllowPeople()
                 browser.refresh
                 sleep(randint(2, 5))
                 UnfllowPeople()
-                like_user_photo()
-                browser.refresh
                 sleep(randint(2, 5))                         
             browser.get("https://www.instagram.com/")                  
             time = randint(800, 3600)
@@ -108,8 +120,8 @@ def parse_data(s):
     s = s.split(" ")
     
     data['Followers'] = s[0]
-    data['Following'] = s[1]
-    data['Posts'] = s[2]
+    data['Following'] = s[2]
+    data['Posts'] = s[4]
     
     return data
         
@@ -169,7 +181,8 @@ def search_users_from_person():
     sleep(randint(0, 5))
     
     for user in browser.find_elements_by_css_selector("div.Igw0E.IwRSH.YBx95.vwCYk"):
-        users.append(user.find_element_by_css_selector('a').get_attribute('title'))             
+        users.append(user.find_element_by_css_selector('a').get_attribute('title')) 
+        random.shuffle(users)            
     keyword = (randint(0, len(users)))
     try:
         browser.get("https://www.instagram.com/"+users[keyword -1]+"/")        
@@ -181,20 +194,15 @@ def like_user_photo():
     #In user profile    
     count =  randint(10, 30)
     liked = 0
-    while(liked<=count):
-        type_search = randint(0, 1)
-        if(type_search == 0):
-            search_users_from_person()             
-        else:
-            search_users()
-            
+    while(liked<=count):        
+        search_users_from_person()                                 
         user_photo_founded = True    
         while(user_photo_founded):
                   
             rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))            
             if(rows.size == 0):
                 print("USUÁRIO SEM FOTOS, PROCURANDO UM NOVO...")
-                search_users()  
+                search_users_from_person()  
                 rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))                 
             else:
                 position = randint(0, len(rows))
@@ -202,12 +210,20 @@ def like_user_photo():
                 user_photo_founded = False
         
         has_picture = True
-        
+        count_like = randint(2, 10)
+        to_like = 0
+        print("Quantidade de likes: %i" % (count_like))
         while has_picture:
-           like()       
+           like()     
            liked = liked + 1
-           sleep(randint(0,3))
-           has_picture = has_next_picture()
+           to_like = to_like + 1
+           sleep(randint(0,3))           
+           print("Fotos curtidas: %i" % (to_like))
+           if(to_like >= count_like):
+               has_picture = False 
+               print("Limite de curtidas atingido!")               
+           else:
+               has_picture = has_next_picture()
         try:
             browser.find_element_by_xpath("//button[@class=\"ckWGn\"]").click()
             print("Fots curtidas do link: " + browser.current_url)            
@@ -218,8 +234,7 @@ def like_user_photo():
 def like():                
     try:              
         browser.find_element_by_class_name('fr66n').click()
-        sleep(randint(0, 3))                
-        print("Sucessfully clicked the photo")
+        sleep(randint(0, 3))                        
     except:
         print("Error to like")        
             
