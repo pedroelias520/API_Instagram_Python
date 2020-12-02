@@ -21,9 +21,9 @@ import numpy as np
 browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
-instagram_bases = ['brito_michelli','anabneri','erickwendel_','marcoshenrique.dev','filipealvesdef','lucasmontano','flutterando','dieegosf','cafeparaprogramar','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador']
-username = ""
-password = ""
+instagram_bases = ['brito_michelli','anabneri','erickwendel_','marcoshenrique.dev','filipealvesdef','lucasmontano','flutterando','dieegosf','cafeparaprogramar','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador','felipeodev','diariodeti','oprogramador_','adsdepressao','carinhadoti','tidadepressao','programadorsonambulo']
+username = "@codezone_oficial"
+password = "#@Java_6118@#"
 URL = "http://www.instagram.com/{}/"
 
 
@@ -31,12 +31,16 @@ class main:
     def __init__(self):         
         logIn()
         while(True):
-            data = scrape_data(username[1:])            
-            chooser = randint(0, 4)            
-            data = int(data['Following'])
-            if(data <= 50):
+            data = scrape_data(username[1:])                                   
+            chooser = randint(0, 4)      
+            followers = int(data['Followers'])
+            data = int(data['Following'])                        
+            if(data <= followers/4):
                 print('Numero de seguidores baixo, seguindo outros...')
                 chooser = 0
+            if(data > followers/4):
+                print('Seguidores demais, deseguindo alguns')
+                chooser = 4
            
                      
             if(chooser == 0):       
@@ -83,7 +87,7 @@ class main:
                 UnfllowPeople()
                 sleep(randint(2, 5))                         
             browser.get("https://www.instagram.com/")                  
-            time = randint(800, 3600)
+            time = randint(1800, 7200)
             now = datetime.now()
             current_time =  now.strftime("%H:%M:%S")            
             print("Hora de término de execução:" + current_time)
@@ -192,30 +196,35 @@ def search_users_from_person():
                 
 def like_user_photo():
     #In user profile    
-    count =  randint(10, 30)
-    liked = 0
-    while(liked<=count):        
-        search_users_from_person()                                 
-        user_photo_founded = True    
-        while(user_photo_founded):
-                  
-            rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))            
+    count =  randint(5, 20)
+    print("Curtir fotos de %i pessoas" % (count))
+    people_to_like = 0
+    while(people_to_like<=count):        
+        search_users_from_person()   
+        rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))   
+        #Seleciona  uma pessoa                              
+        user_without_photos = True    
+        while(user_without_photos):                                     
+            #Capta as fotos no seu perfil
             if(rows.size == 0):
-                print("USUÁRIO SEM FOTOS, PROCURANDO UM NOVO...")
+                #Se não houver fotos o processo de busca é refeito e reiniciar o loop
+                print("USUÁRIO SEM FOTOS, PROCURANDO UM NOVO...")                
                 search_users_from_person()  
-                rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))                 
+                rows = np.array(browser.find_elements_by_css_selector("div.Nnq7C.weEfm"))                  
+                user_without_photos = True
             else:
+                #Senão clica em uma foto aleatória e quebra o loop
                 position = randint(0, len(rows))
                 rows[position-1].find_element_by_css_selector("div.v1Nh3.kIKUG._bz0w").click() 
-                user_photo_founded = False
+                people_to_like = people_to_like + 1
+                user_without_photos = False
         
         has_picture = True
         count_like = randint(2, 10)
         to_like = 0
         print("Quantidade de likes: %i" % (count_like))
         while has_picture:
-           like()     
-           liked = liked + 1
+           like()                
            to_like = to_like + 1
            sleep(randint(0,3))           
            print("Fotos curtidas: %i" % (to_like))
@@ -227,8 +236,7 @@ def like_user_photo():
         try:
             browser.find_element_by_xpath("//button[@class=\"ckWGn\"]").click()
             print("Fots curtidas do link: " + browser.current_url)            
-        except:
-            print("Não foi possível abrir a imagem, voltando para a página inicial") 
+        except:            
             browser.get("https://www.instagram.com/")
     
 def like():                
@@ -245,7 +253,7 @@ def has_next_picture():
         browser.find_element_by_xpath(next_button).click()        
         return True
     except :
-        print("User has no more pictures")
+        print("Usuário não possui mais fotos")
         return False            
             
            
@@ -257,7 +265,7 @@ def FollowPeople():
     cont = 0    
     #Get all people to follow
         
-    number_of_people = randint(10,20)
+    number_of_people = randint(5,20)
     print('Number of repetitions')
     print(number_of_people)
     print('=========================')
@@ -291,7 +299,7 @@ def GetFollowersfrom(person):
     profile_logo_following = browser.find_element_by_xpath("//a[@href='/"+ person +"/followers/']")
     profile_logo_following.click()
     print('Numero de pessoas para seguir')
-    number_of_random = randint(10, 20)    
+    number_of_random = randint(5, 20)    
     print(number_of_random)
     print('=========================')
     cont_num = 0
