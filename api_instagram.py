@@ -22,8 +22,8 @@ browser =  webdriver.Firefox(executable_path='C:\geckodriver.exe')
 browser.maximize_window()
 users = []
 instagram_bases = ['brito_michelli','anabneri','erickwendel_','marcoshenrique.dev','filipealvesdef','lucasmontano','flutterando','dieegosf','cafeparaprogramar','filipedeschamps','geek2code','codandoclub','devmedia.com.br','sujeitoprogramador','felipeodev','diariodeti','oprogramador_','adsdepressao','carinhadoti','tidadepressao','programadorsonambulo']
-username = ""
-password = "#"
+username = "Yamete"
+password = "Kudasai"
 URL = "http://www.instagram.com/{}/"
 
 
