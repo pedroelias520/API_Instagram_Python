@@ -35,10 +35,10 @@ class main:
             chooser = randint(0, 4)      
             followers = int(data['Followers'])
             data = int(data['Following'])                        
-            if(data <= followers/4):
+            if(data <= followers/3):
                 print('Numero de seguidores baixo, seguindo outros...')
                 chooser = 0
-            if(data > followers/4):
+            if(data > followers>2):
                 print('Seguidores demais, deseguindo alguns')
                 chooser = 4
            
